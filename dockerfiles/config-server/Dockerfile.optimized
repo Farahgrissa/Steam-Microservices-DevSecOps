@@ -1,0 +1,20 @@
+# ═══════════════ BUILD STAGE ═══════════════
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+WORKDIR /app
+COPY pom.xml .
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn dependency:go-offline -B
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn clean package -DskipTests
+
+# ═══════════════ RUN STAGE ═══════════════
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+RUN addgroup -S config && adduser -S config -G config
+COPY --from=builder --chown=config:config /app/target/*.jar config-server.jar
+USER config
+EXPOSE 8888
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD wget -qO- http://localhost:8888/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "config-server.jar"]

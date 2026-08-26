@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+RUN addgroup -S spring && adduser -S spring -G spring
+COPY --chown=spring:spring target/*.jar gateway.jar
+USER spring
+EXPOSE 8222
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:8222/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "gateway.jar"]

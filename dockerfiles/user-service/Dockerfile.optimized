@@ -1,0 +1,18 @@
+#BUILD
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -o
+
+#RUN
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+RUN addgroup -S spring && adduser -S spring -G spring
+COPY --from=builder /app/target/*.jar user-service.jar
+USER spring:spring
+EXPOSE 8090
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO- http://localhost:8090/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "user-service.jar"]

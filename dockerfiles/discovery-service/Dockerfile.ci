@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+RUN addgroup -S spring && adduser -S spring -G spring
+COPY --chown=spring:spring target/*.jar discovery-service.jar
+USER spring
+EXPOSE 8761
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD wget -qO- http://localhost:8761/actuator/health || exit 1
+ENTRYPOINT ["java", "-jar", "discovery-service.jar"]
