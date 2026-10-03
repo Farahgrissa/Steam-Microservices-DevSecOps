@@ -28,7 +28,7 @@ Gitea · Jenkins · Maven · Docker · Docker Compose · Harbor · SonarQube · 
 `user-service` (8090) + **MongoDB**.
 
 <p align="center">
-  <img src="docs/architecture-applicative.png" alt="architecture applicative" width="480"/>
+  <img src="docs/architecture-applicative.png" alt="architecture-applicative" width="480"/>
 </p>
 
 Le tout hébergé sur une VM unique, sur un réseau Docker commun :
