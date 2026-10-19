@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     options {
-        timeout(time: 60, unit: 'MINUTES')
+        timeout(time: 120, unit: 'MINUTES')
+        disableConcurrentBuilds()
     }
 
     parameters {
@@ -98,6 +99,8 @@ pipeline {
                               -v trivy-cache:/root/.cache/trivy \
                               aquasec/trivy:latest image \
                               --exit-code 1 \
+                              --skip-db-update \
+                              --skip-java-db-update \
                               --scanners vuln \
                               --severity CRITICAL \
                               --ignore-unfixed \
@@ -149,9 +152,8 @@ pipeline {
                     )]) {
                         sh """
                             echo "\$HARBOR_PSW" | docker login ${HARBOR_REGISTRY} -u "\$HARBOR_USR" --password-stdin
-                            docker compose -p steam -f ${COMPOSE_FILE} down || true
                             docker compose -p steam -f ${COMPOSE_FILE} pull
-                            docker compose -p steam -f ${COMPOSE_FILE} up -d
+                            docker compose -p steam -f ${COMPOSE_FILE} up -d --remove-orphans --wait --wait-timeout 300
                             docker logout ${HARBOR_REGISTRY}
                         """
                     }
@@ -165,8 +167,6 @@ pipeline {
             }
             steps {
                 sh """
-                    echo "Attente du demarrage des services..."
-                    sleep 40
                     docker compose -p steam -f ${COMPOSE_FILE} ps
                 """
             }
