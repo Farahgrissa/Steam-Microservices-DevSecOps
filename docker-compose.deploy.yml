@@ -65,8 +65,8 @@ services:
       EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       EUREKA_HOSTNAME_USER: user-service
       MONGO_HOST: mongo_db
-      MONGO_USERNAME: ${MONGO_ROOT_USER}
-      MONGO_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_DB_USER: ${MONGO_ROOT_USER}
+      MONGO_DB_PASSWORD: ${MONGO_ROOT_PASSWORD}
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "8090"]
       interval: 30s
